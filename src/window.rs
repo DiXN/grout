@@ -3,7 +3,7 @@ use std::ptr;
 
 use winapi::shared::windef::HWND;
 use winapi::um::winuser::{
-    GetWindowInfo, GetWindowRect, SetWindowPos, ShowWindow, SWP_NOACTIVATE, SW_RESTORE, WINDOWINFO,
+    GetWindowInfo, GetWindowRect, SetWindowPos, ShowWindow, SWP_NOACTIVATE, SW_RESTORE, WINDOWINFO, GetWindowTextA
 };
 
 use crate::common::Rect;
@@ -67,6 +67,22 @@ impl Window {
         };
 
         (x, y)
+    }
+
+    #[allow(dead_code)]
+    pub fn name(self) -> String {
+        let size = 260;
+        let mut buffer : Vec<u8> = Vec::with_capacity(size);
+
+        unsafe {
+            buffer.set_len(size);
+            GetWindowTextA(self.0, buffer.as_mut_ptr() as *mut i8, size as i32);
+        }
+
+        let mut name = String::from_utf8_lossy(&buffer[..]).into_owned();
+        name.retain(|c| c != '\u{0}');
+
+        name
     }
 
     pub fn restore(&mut self) {
