@@ -13,7 +13,7 @@ use winapi::um::winuser::{
     SetForegroundWindow, ShowWindow, TrackMouseEvent, SW_SHOW, TME_LEAVE, TRACKMOUSEEVENT,
 };
 
-use crate::common::{get_foreground_window, Rect};
+use crate::common::{get_foreground_window, get_current_focused_window, Rect};
 use crate::event::{spawn_foreground_hook, spawn_track_monitor_thread};
 use crate::grid::Grid;
 use crate::hotkey::{spawn_hotkey_thread, HotkeyType};
@@ -108,7 +108,12 @@ fn main() {
                         let mut grid = GRID.lock().unwrap();
 
                         grid.grid_window = Some(window);
-                        grid.active_window = Some(get_foreground_window());
+
+                        if config.auto_focus {
+                            grid.active_window = unsafe { Some(get_current_focused_window()) };
+                        } else {
+                            grid.active_window = Some(get_foreground_window());
+                        }
 
                         spawn_track_monitor_thread(close_channel.1.clone());
                         spawn_preview_window(close_channel.1.clone());

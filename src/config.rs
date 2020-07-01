@@ -25,6 +25,9 @@ hotkey: CTRL+ALT+S
 
 # Automatically launch program on startup
 auto_start: false
+
+# Automatically highlight window on mouse hover
+auto_focus: false
 ";
 
 pub fn load_config() -> Config {
@@ -101,6 +104,7 @@ pub struct Config {
     pub hotkey_quick_resize: Option<String>,
     pub hotkey_maximize_toggle: Option<String>,
     pub auto_start: bool,
+    pub auto_focus: bool
 }
 
 impl Default for Config {
@@ -112,6 +116,7 @@ impl Default for Config {
             hotkey_quick_resize: None,
             hotkey_maximize_toggle: None,
             auto_start: false,
+            auto_focus: false
         }
     }
 }

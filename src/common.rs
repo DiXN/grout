@@ -6,7 +6,7 @@ use std::ptr;
 use winapi::shared::windef::{POINT, RECT};
 use winapi::um::winuser::{
     GetCursorPos, GetForegroundWindow, GetMonitorInfoW, MessageBoxW, MonitorFromPoint, MB_OK,
-    MONITORINFOEXW, MONITOR_DEFAULTTONEAREST,
+    MONITORINFOEXW, MONITOR_DEFAULTTONEAREST, WindowFromPoint, GetParent
 };
 
 use crate::window::Window;
@@ -118,6 +118,21 @@ pub unsafe fn get_active_monitor_name() -> String {
     GetMonitorInfoW(active_monitor, &mut info as *mut MONITORINFOEXW as *mut _);
 
     String::from_utf16_lossy(&info.szDevice)
+}
+
+pub unsafe fn get_current_focused_window() -> Window {
+    let mut cursor_pos: POINT = mem::zeroed();
+    GetCursorPos(&mut cursor_pos);
+
+    let mut hwnd = WindowFromPoint(cursor_pos);
+
+    loop {
+        if GetParent(hwnd) != ptr::null_mut() {
+            hwnd = GetParent(hwnd)
+        } else {
+            return Window(hwnd);
+        }
+    }
 }
 
 pub fn report_and_exit(error_msg: &str) {
